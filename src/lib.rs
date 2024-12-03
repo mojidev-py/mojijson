@@ -1,4 +1,4 @@
-use std::{collections::{BTreeMap, HashMap}, fmt::Display, hash::Hash, str::FromStr};
+use std::{char, collections::{BTreeMap, HashMap}, fmt::Display, hash::Hash, num::ParseIntError, ops::Range, str::FromStr};
 
 #[derive(Clone,Eq,PartialEq,Hash)]
 enum IntNum {
@@ -23,16 +23,6 @@ struct JsonObject {
 }
 
 
-fn ret_bool(input: String) -> Result<JsonTypes,String>
-{
-    if input.starts_with("true") {
-        Ok(JsonTypes::Bool(true))
-    } else if input.starts_with("false") {
-        Ok(JsonTypes::Bool(false))
-    } else {
-        Err("Could not perform conversion from string to bool.".to_string())
-    }
-}
 
 fn ret_vec(input: String) -> Result<JsonTypes,JsonTypes>
 {
@@ -62,8 +52,6 @@ fn ret_vec(input: String) -> Result<JsonTypes,JsonTypes>
 }
 // all other non implemented types can be converted because they implement the ToString trait
 
-
-
 impl JsonObject {
     fn from_line(&self,content: String) -> Self {
         //! Constructs a `JsonObject` from a single JSON key value pair.
@@ -72,8 +60,14 @@ impl JsonObject {
         for character in content.chars() {
             n += 1;
             if character == ':' {
-                
-                parsed.insert(content[..n].to_string(),"blah");
+                // returns the corresponding type for value
+                let typefound = match content.chars().nth(n + 1) {
+                    Some('t') => JsonTypes::Bool(true),
+                    Some('f') => JsonTypes::Bool(false),
+                    Some('"') => JsonTypes::String(content[n..].to_string()),
+                    _ => JsonTypes::Int(IntNum::I32(content.parse::<i32>().expect("1")))
+                };
+                parsed.insert(content[..=n].to_string(),typefound);
             }
 
         }
