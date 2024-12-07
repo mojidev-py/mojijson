@@ -1,13 +1,15 @@
-use std::{char, collections::{BTreeMap, HashMap}, fmt::Display, hash::Hash, num::ParseIntError, ops::Range, str::FromStr};
 
-#[derive(Clone,Eq,PartialEq,Hash)]
+
+pub(crate) mod json_parser_main {
+    use std::collections::{BTreeMap, HashMap};
+#[derive(Clone,Eq,PartialEq,Hash,Debug)]
 enum IntNum {
     I32(i32),
     I64(i64)
 
 }
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Eq, PartialEq, Hash,Debug)]
 enum JsonTypes {
     Null,
     String(String),
@@ -17,14 +19,14 @@ enum JsonTypes {
     Dict(BTreeMap<String,JsonTypes>),
     
 }
-#[derive(Clone)]
-struct JsonObject {
+#[derive(Clone,Debug)]
+pub struct JsonObject {
     contents: HashMap<String,JsonTypes>
 }
 
 
 
-fn ret_vec(input: String) -> Result<JsonTypes,JsonTypes>
+pub fn ret_vec(input: String) -> Result<JsonTypes,JsonTypes>
 {
     if input.starts_with("[") {
         let split = input.split_terminator(",");
@@ -53,7 +55,7 @@ fn ret_vec(input: String) -> Result<JsonTypes,JsonTypes>
 // all other non implemented types can be converted because they implement the ToString trait
 
 impl JsonObject {
-    fn from_line(&self,content: String) -> Self {
+    pub fn from_line(content: String) -> Self {
         //! Constructs a `JsonObject` from a single JSON key value pair.
         let mut parsed = HashMap::new();
         let mut n = 0;
@@ -65,6 +67,7 @@ impl JsonObject {
                     Some('t') => JsonTypes::Bool(true),
                     Some('f') => JsonTypes::Bool(false),
                     Some('"') => JsonTypes::String(content[n..].to_string()),
+                    Some('[') => JsonTypes::Vec(ret_vec(content[n..].to_string())),
                     _ => JsonTypes::Int(IntNum::I32(content.parse::<i32>().expect("1")))
                 };
                 parsed.insert(content[..=n].to_string(),typefound);
@@ -75,16 +78,5 @@ impl JsonObject {
             contents:parsed
         }
     }
-
-    fn from(&self,content: String) -> Result<Self,String> {
-        //! Constructs self from multiple JSON key value pairs, or from a file (for files, just use the `.read_to_string()` method, or else an error will occur)
-        let mut parsed = HashMap::new();
-        for character in content.chars() {
-            
-        }
-        Ok(Self {
-            contents:parsed
-        })
-    }
-
+}
 }
