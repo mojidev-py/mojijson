@@ -76,12 +76,15 @@ impl JsonObject {
         }
     }
 
-    fn from(&self,content: String) -> Self {
+    fn from(&self,content: String) -> Result<Self,String> {
         //! Constructs self from multiple JSON key value pairs, or from a file (for files, just use the `.read_to_string()` method, or else an error will occur)
         let mut parsed = HashMap::new();
-        Self {
-            contents:parsed
+        for character in content.chars() {
+            
         }
+        Ok(Self {
+            contents:parsed
+        })
     }
 
 }
